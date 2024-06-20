@@ -5,11 +5,11 @@ import hashlib
 import argparse
 import logging
 
-def calculate_md5(file_path, length=io.DEFAULT_BUFFER_SIZE):
+def md5_check(file_path, length=io.DEFAULT_BUFFER_SIZE):
     # Calculate the MD5 checksum of a file.
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(length), b""):
+        while chunk := f.read(length):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
@@ -32,7 +32,7 @@ def sync_folders(source, replica):
         if os.path.isdir(source_item):
             sync_folders(source_item, replica_item)
         else:
-            if not os.path.exists(replica_item) or calculate_md5(source_item) != calculate_md5(replica_item):
+            if not os.path.exists(replica_item) or md5_check(source_item) != md5_check(replica_item):
                 shutil.copy2(source_item, replica_item)
                 logging.info(f">>> Copied {source_item} to {replica_item}")
 
